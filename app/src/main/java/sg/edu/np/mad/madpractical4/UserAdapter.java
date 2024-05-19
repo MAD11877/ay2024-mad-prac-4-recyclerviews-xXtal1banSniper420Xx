@@ -1,49 +1,73 @@
 package sg.edu.np.mad.madpractical4;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
-    private final ListActivity activity;
-    private ArrayList<User> list_objects;
-    public UserAdapter(ArrayList  <User> list_object, ListActivity activity){
-        this.list_objects = list_object;
-        this.activity = activity;
+    private List<User> userList;
+    private Context context;
+
+    // Constructor with List<User> and Context
+    public UserAdapter(List<User> userList, Context context) {
+        this.userList = userList;
+        this.context = context;
     }
 
-    //Method to create a view holder for a username
-    public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_activity_list, parent, false);
-        UserViewHolder holder = new UserViewHolder(view);
-        return holder;
+    @NonNull
+    @Override
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.custom_activity_list, parent, false);
+        return new UserViewHolder(view);
     }
 
-    //Method to bind username to viewholder
-    public void onBindViewHolder(UserViewHolder holder, int position){
-        //get position of username
-        User list_items = list_objects.get(position);
-        //Set username to the viewholder based on custom_activity_list.xml
-        holder.name.setText(list_items.getName());
-        //Set description to the viewholder based on custom_activity_list.xml
-        holder.description.setText(list_items.getDescription());
-        //Show big image if last digit is 7
-        String str = String.valueOf(holder.name.getText());
-        char lastchar = str.charAt(str.length() - 1);
-        if (String.valueOf(lastchar).equals("7")){
-            holder.bigImage.setVisibility(View.VISIBLE);
-        }
-        else {
-            holder.bigImage.setVisibility(View.GONE);
-        }
-        //Configure setonclicklistener() for the small image on the view holder based on custom_activity_list.xml
+    @Override
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+        User user = userList.get(position);
+        holder.textViewName.setText(user.getName());
+        holder.textViewDescription.setText(user.getDescription());
+        holder.imageViewSmall.setImageResource(R.drawable.ic_launcher_foreground); // Replace with actual small image resource if available
+        holder.imageViewLarge.setImageResource(R.drawable.ic_launcher_foreground); // Replace with actual large image resource if available
 
+        // Set click listener for the item
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an AlertDialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Profile")
+                        .setMessage("MADness")
+                        .setPositiveButton("VIEW", (dialog, which) -> {
+                            // Generate a random integer
+                            Random random = new Random();
+                            int randomInt = random.nextInt(100); // Generates a random integer from 0 to 99
+
+                            // Create an Intent to start MainActivity
+                            Intent intent = new Intent(context, MainActivity.class);
+                            intent.putExtra("RandomNumber", randomInt);
+                            context.startActivity(intent);
+                        })
+                        .setNegativeButton("CLOSE", (dialog, which) -> dialog.dismiss())
+                        .setCancelable(true);
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
     }
+
+    @Override
     public int getItemCount() {
-        return list_objects.size();
+        return userList.size();
     }
 }
